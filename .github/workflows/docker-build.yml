@@ -38,8 +38,8 @@ jobs:
         uses: docker/login-action@v2
         id: login_to_dockerhub
         with:
-          username: ${{ env.DOCKERHUB_USERNAME }}
-          password: ${{ env.DOCKERHUB_PASSWORD }} 
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }} 
 
       - name: Set up QEMU
         id: setup_qemu
@@ -61,4 +61,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ env.DOCKERHUB_USERNAME }}/{{ inputs.docker_image }}:{{ inputs.tag }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/{{ inputs.docker_image }}:{{ inputs.tag }}
