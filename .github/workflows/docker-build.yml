@@ -1,0 +1,63 @@
+name: Docker Build Automation
+on:
+  workflow_call:
+    inputs:
+      docker_context:
+        description: The directory where the Dockerfile lives
+        required: true
+        type: string
+      docker_build_args:
+        default: ""
+        description: All docker args which are newline separated. Use | followed by a newline for each key/value pair.
+        required: false
+        type: string
+      docker_image:
+        required: true
+        description: The docker image to build
+        type: string
+      dockerfile:
+        default: Dockerfile
+        required: false
+        type: string
+      tag:
+        default: latest
+        required: false
+        type: string
+jobs:
+  docker:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to Dockerhub
+        uses: docker/login-action@v2
+        id: login_to_dockerhub
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_PASSWORD }} 
+
+      - name: Set up QEMU
+        id: setup_qemu
+        if: ${{ steps.login_to_dockerhub.outcome }} == 0
+        uses: docker/setup-qemu-action@v2
+
+      - name: Setup Docker Buildx
+        if: ${{ steps.setup_qemu.outcome }} == 0
+        id: setup_docker_buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and Push
+        uses: docker/build-push-action@v3
+        if: ${{ steps.setup_docker_buildx.outcome }} == 0
+        with:
+          build-args: ${{ inputs.docker_build_args }}
+          context: ${{ inputs.docker_context }}
+          file: ${{ inputs.docker_context }}/${{ inputs.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.DOCKERHUB_USERNAME }}/{{ inputs.docker_image }}:{{ inputs.tag }}
