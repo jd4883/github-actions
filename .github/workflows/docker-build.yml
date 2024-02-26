@@ -3,8 +3,9 @@ on:
   workflow_call:
     inputs:
       docker_context:
+        default: "."
         description: The directory where the Dockerfile lives
-        required: true
+        required: false
         type: string
       docker_build_args:
         default: ""
