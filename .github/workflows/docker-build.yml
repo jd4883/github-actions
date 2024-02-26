@@ -61,4 +61,4 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/{{ inputs.docker_image }}:{{ inputs.tag }}
+            {{ inputs.docker_image }}:{{ inputs.tag }}
